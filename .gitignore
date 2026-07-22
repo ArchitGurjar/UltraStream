@@ -3,8 +3,6 @@
 build/
 app/build/
 */build/
-gradle-wrapper.jar
-gradle/wrapper/gradle-wrapper.jar
 gradle.properties
 local.properties
 
