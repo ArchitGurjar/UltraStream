@@ -1,0 +1,115 @@
+package com.ultrastream.utils
+
+import android.net.Uri
+import com.google.gson.Gson
+import com.google.gson.JsonParser
+import com.ultrastream.UltraStreamApplication
+import com.ultrastream.data.models.MetaItem
+import com.ultrastream.data.models.Stream
+import com.ultrastream.data.models.AddonManifest
+import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.logging.HttpLoggingInterceptor
+import java.util.concurrent.TimeUnit
+
+object NetworkUtils {
+
+    private val client: OkHttpClient by lazy {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BASIC
+        }
+        OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    private val gson = Gson()
+
+    suspend fun fetchMeta(metaId: String, metaType: String): MetaItem? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = "https://v3-cinemeta.strem.io/meta/$metaType/$metaId.json"
+                val response = client.newCall(Request.Builder().url(url).build()).execute()
+                if (response.isSuccessful) {
+                    val json = response.body?.string()
+                    val jsonObject = JsonParser.parseString(json).asJsonObject
+                    val metaJson = jsonObject.getAsJsonObject("meta")
+                    return@withContext gson.fromJson(metaJson, MetaItem::class.java)
+                }
+                null
+            } catch (e: Exception) { null }
+        }
+    }
+
+    suspend fun fetchStreams(metaId: String, metaType: String): List<Stream> {
+        return withContext(Dispatchers.IO) {
+            val allStreams = mutableListOf<Stream>()
+            val addons = UltraStreamApplication.instance.repository.getEnabledAddons()
+            val jobs = addons.map { addon ->
+                async {
+                    try {
+                        val baseUrl = addon.url.replace("/manifest.json", "")
+                        var url = "$baseUrl/stream/$metaType/${Uri.encode(metaId)}.json"
+                        val debridKey = UltraStreamApplication.instance.repository.getDebridKey()
+                        if (debridKey.isNotEmpty()) {
+                            url += if (url.contains("?")) "&" else "?"
+                            url += "realdebrid=$debridKey"
+                        }
+                        val response = client.newCall(Request.Builder().url(url).build()).execute()
+                        if (response.isSuccessful) {
+                            val json = response.body?.string()
+                            val jsonObject = JsonParser.parseString(json).asJsonObject
+                            val streamsArray = jsonObject.getAsJsonArray("streams")
+                            streamsArray?.forEach { streamJson ->
+                                val stream = gson.fromJson(streamJson, Stream::class.java)
+                                val newStream = stream.copy(addonName = addon.name)
+                                allStreams.add(newStream)
+                            }
+                        }
+                    } catch (e: Exception) { }
+                }
+            }
+            jobs.awaitAll()
+            allStreams
+        }
+    }
+
+    suspend fun fetchCatalog(addonUrl: String, catalogType: String, catalogId: String): List<MetaItem> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val baseUrl = addonUrl.replace("/manifest.json", "")
+                val url = "$baseUrl/catalog/$catalogType/$catalogId.json"
+                val response = client.newCall(Request.Builder().url(url).build()).execute()
+                if (response.isSuccessful) {
+                    val json = response.body?.string()
+                    val jsonObject = JsonParser.parseString(json).asJsonObject
+                    val metasArray = jsonObject.getAsJsonArray("metas")
+                    val result = mutableListOf<MetaItem>()
+                    metasArray?.forEach { metaJson ->
+                        val meta = gson.fromJson(metaJson, MetaItem::class.java)
+                        result.add(meta)
+                    }
+                    return@withContext result
+                }
+                emptyList()
+            } catch (e: Exception) { emptyList() }
+        }
+    }
+
+    suspend fun fetchAddonManifest(url: String): AddonManifest? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = client.newCall(Request.Builder().url(url).build()).execute()
+                if (response.isSuccessful) {
+                    val json = response.body?.string()
+                    return@withContext gson.fromJson(json, AddonManifest::class.java)
+                }
+                null
+            } catch (e: Exception) { null }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom Nav Colors -->
+    <color name="bottom_nav_inactive">#888888</color>
+    <color name="bottom_nav_active">#38bdf8</color>
+
+    <!-- Card Colors -->
+    <color name="card_bg_dark">#1a1a1a</color>
+    <color name="card_bg_light">#ffffff</color>
+
+    <!-- Badge Colors -->
+    <color name="badge_hindi">#d97706</color>
+    <color name="badge_hindi_bg">#33ffa500</color>
+    <color name="badge_size">#b45309</color>
+    <color name="badge_size_bg">#33fbbf24</color>
+    <color name="badge_seed">#15803d</color>
+    <color name="badge_seed_bg">#334caf50</color>
+    <color name="badge_live">#ef4444</color>
+    <color name="badge_live_bg">#33ef4444</color>
+    <color name="badge_qual">#ffffff</color>
+    <color name="badge_qual_bg">#33ffffff</color>
+    <color name="badge_sub">#a78bfa</color>
+    <color name="badge_sub_bg">#33a78bfa</color>
+
+    <!-- Progress Colors -->
+    <color name="progress_bg">#33ffffff</color>
+    <color name="progress_filled">#38bdf8</color>
+
+    <!-- Overlay Colors -->
+    <color name="overlay_dark">#cc000000</color>
+    <color name="overlay_light">#ccffffff</color>
+</resources>

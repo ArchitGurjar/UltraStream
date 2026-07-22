@@ -1,0 +1,74 @@
+===== ULTRASTREAM ERROR REPORT =====
+Generated on: Wed Jul 22 22:15:09 IST 2026
+
+--- BUILD LOG ERRORS ---
+Processing: build.log
+8:> Task :app:checkKotlinGradlePluginConfigurationErrors
+53:   > Compilation error. See log for more details
+42:e: file:///storage/emulated/0/ultrabuild/UltraStream/app/src/main/java/com/ultrastream/utils/NetworkUtils.kt:9:30 Unresolved reference: AddonManifest
+43:e: file:///storage/emulated/0/ultrabuild/UltraStream/app/src/main/java/com/ultrastream/utils/NetworkUtils.kt:103:50 Unresolved reference: AddonManifest
+44:e: file:///storage/emulated/0/ultrabuild/UltraStream/app/src/main/java/com/ultrastream/utils/NetworkUtils.kt:109:60 Unresolved reference: AddonManifest
+Processing: cache_build.log
+Processing: class_build.log
+8:> Task :app:checkKotlinGradlePluginConfigurationErrors
+66:	at org.jetbrains.kotlin.load.kotlin.VirtualFileKotlinClass$Factory.logFileReadingErrorMessage(VirtualFileKotlinClass.kt:77)
+67:	at org.jetbrains.kotlin.load.kotlin.VirtualFileKotlinClass$Factory.access$logFileReadingErrorMessage(VirtualFileKotlinClass.kt:46)
+141:Caused by: java.io.IOException: I/O error
+174:   > Internal compiler error. See log for more details
+Processing: micro_build.log
+8:> Task :app:checkKotlinGradlePluginConfigurationErrors
+53:   > Compilation error. See log for more details
+42:e: file:///storage/emulated/0/ultrabuild/UltraStream/app/src/main/java/com/ultrastream/utils/NetworkUtils.kt:9:30 Unresolved reference: AddonManifest
+43:e: file:///storage/emulated/0/ultrabuild/UltraStream/app/src/main/java/com/ultrastream/utils/NetworkUtils.kt:103:50 Unresolved reference: AddonManifest
+44:e: file:///storage/emulated/0/ultrabuild/UltraStream/app/src/main/java/com/ultrastream/utils/NetworkUtils.kt:109:60 Unresolved reference: AddonManifest
+Processing: sdk_build.log
+
+--- SOURCE CODE SCAN (Common Issues) ---
+File: ./app/src/main/java/com/ultrastream/player/PlayerActivity.kt
+File: ./app/src/main/java/com/ultrastream/utils/M3UParser.kt
+File: ./app/src/main/java/com/ultrastream/utils/PreferencesManager.kt
+File: ./app/src/main/java/com/ultrastream/utils/StreamParser.kt
+File: ./app/src/main/java/com/ultrastream/utils/CatalogBuilder.kt
+File: ./app/src/main/java/com/ultrastream/utils/NetworkUtils.kt
+File: ./app/src/main/java/com/ultrastream/UltraStreamApplication.kt
+File: ./app/src/main/java/com/ultrastream/ui/details/DetailsActivity.kt
+File: ./app/src/main/java/com/ultrastream/ui/search/SearchFragment.kt
+File: ./app/src/main/java/com/ultrastream/ui/home/HomeFragment.kt
+File: ./app/src/main/java/com/ultrastream/ui/profile/ProfileFragment.kt
+File: ./app/src/main/java/com/ultrastream/ui/adapters/EpisodeAdapter.kt
+File: ./app/src/main/java/com/ultrastream/ui/adapters/ContinueWatchingAdapter.kt
+File: ./app/src/main/java/com/ultrastream/ui/adapters/StreamAdapter.kt
+File: ./app/src/main/java/com/ultrastream/ui/adapters/PosterAdapter.kt
+File: ./app/src/main/java/com/ultrastream/ui/adapters/RecommendedAddonAdapter.kt
+File: ./app/src/main/java/com/ultrastream/ui/adapters/SmartPlaylistAdapter.kt
+File: ./app/src/main/java/com/ultrastream/ui/sheets/StreamBottomSheet.kt
+File: ./app/src/main/java/com/ultrastream/ui/sheets/M3UActionBottomSheet.kt
+File: ./app/src/main/java/com/ultrastream/ui/sheets/StreamActionBottomSheet.kt
+File: ./app/src/main/java/com/ultrastream/ui/sheets/SeasonSelectBottomSheet.kt
+File: ./app/src/main/java/com/ultrastream/ui/sheets/SubtitleBottomSheet.kt
+File: ./app/src/main/java/com/ultrastream/ui/addons/AddonsFragment.kt
+File: ./app/src/main/java/com/ultrastream/ui/library/LibraryFragment.kt
+File: ./app/src/main/java/com/ultrastream/MainActivity.kt
+File: ./app/src/main/java/com/ultrastream/network/NetworkUtils.kt
+File: ./app/src/main/java/com/ultrastream/data/models/WatchProgress.kt
+File: ./app/src/main/java/com/ultrastream/data/models/SmartPlaylist.kt
+29:    val isMissing: Boolean = false
+File: ./app/src/main/java/com/ultrastream/data/models/WatchHistory.kt
+File: ./app/src/main/java/com/ultrastream/data/models/WatchedEpisode.kt
+File: ./app/src/main/java/com/ultrastream/data/models/MetaItem.kt
+File: ./app/src/main/java/com/ultrastream/data/models/Profile.kt
+File: ./app/src/main/java/com/ultrastream/data/models/Addon.kt
+30:    val isRequired: Boolean = false,
+File: ./app/src/main/java/com/ultrastream/data/models/Stream.kt
+File: ./app/src/main/java/com/ultrastream/data/repository/AppRepository.kt
+File: ./app/src/main/java/com/ultrastream/data/database/Converters.kt
+File: ./app/src/main/java/com/ultrastream/data/database/AppDatabase.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/WatchedEpisodeDao.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/AddonDao.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/SmartPlaylistDao.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/WatchHistoryDao.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/MetaDao.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/ProfileDao.kt
+File: ./app/src/main/java/com/ultrastream/data/database/dao/WatchProgressDao.kt
+
+===== END REPORT =====
