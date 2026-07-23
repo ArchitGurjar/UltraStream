@@ -1,17 +1,18 @@
-// app/src/main/java/com/ultrastream/ui/sheets/StreamBottomSheet.kt
 package com.ultrastream.ui.sheets
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.snackbar.Snackbar
 import com.ultrastream.databinding.SheetStreamsBinding
 import com.ultrastream.data.models.Stream
 import com.ultrastream.data.models.Video
 import com.ultrastream.ui.adapters.StreamAdapter
-import com.ultrastream.utils.NetworkUtils
+import com.ultrastream.utils.EpisodeMatcher
+import com.ultrastream.network.NetworkUtils
 import kotlinx.coroutines.*
 
 class StreamBottomSheet(
@@ -24,12 +25,10 @@ class StreamBottomSheet(
     private val binding get() = _binding!!
 
     private lateinit var adapter: StreamAdapter
-    private val streams = mutableListOf<Stream>()
     private var isFetching = false
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = SheetStreamsBinding.inflate(inflater, container, false)
@@ -41,27 +40,21 @@ class StreamBottomSheet(
 
         val title = episode?.let {
             "S${it.season.toString().padStart(2, '0')}E${it.episode.toString().padStart(2, '0')}"
-        } ?: "Streams"
+        } ?: "Available Streams"
 
         binding.sheetTitle.text = title
+        binding.btnClose.setOnClickListener { dismiss() }
 
-        setupAdapter()
-        fetchStreams()
-    }
-
-    private fun setupAdapter() {
+        // CRITICAL FIX: Make sure stream click actually opens the options sheet!
         adapter = StreamAdapter { stream ->
-            // Open Stream Action Sheet
-            val actionSheet = StreamActionBottomSheet(stream, getStreamTitle())
+            val actionSheet = StreamActionBottomSheet(stream, title)
             actionSheet.show(parentFragmentManager, "stream_action")
         }
+        
+        binding.rvStreams.layoutManager = LinearLayoutManager(requireContext())
         binding.rvStreams.adapter = adapter
-    }
 
-    private fun getStreamTitle(): String {
-        return episode?.let {
-            "S${it.season.toString().padStart(2, '0')}E${it.episode.toString().padStart(2, '0')}"
-        } ?: metaId
+        fetchStreams()
     }
 
     private fun fetchStreams() {
@@ -71,30 +64,32 @@ class StreamBottomSheet(
         binding.loadingSpinner.visibility = View.VISIBLE
         binding.tvNoStreams.visibility = View.GONE
 
-        val id = if (episode != null) {
-            "$metaId:${episode.season}:${episode.episode}"
-        } else {
-            metaId
-        }
+        val id = episode?.let { "$metaId:${it.season}:${it.episode}" } ?: metaId
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = NetworkUtils.fetchStreams(id, metaType)
+                val filtered = if (episode != null) {
+                    result.filter { EpisodeMatcher.isValidEpisodeStream(it, episode.season, episode.episode) }
+                } else {
+                    result
+                }
                 withContext(Dispatchers.Main) {
-                    streams.clear()
-                    streams.addAll(result)
-                    adapter.submitList(streams)
+                    if (_binding == null) return@withContext
+                    adapter.submitList(filtered)
                     binding.loadingSpinner.visibility = View.GONE
-                    if (streams.isEmpty()) {
+                    if (filtered.isEmpty()) {
                         binding.tvNoStreams.visibility = View.VISIBLE
+                        binding.tvNoStreams.text = "No streams found. Check addons."
                     }
                     isFetching = false
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    if (_binding == null) return@withContext
                     binding.loadingSpinner.visibility = View.GONE
                     binding.tvNoStreams.visibility = View.VISIBLE
-                    binding.tvNoStreams.text = "Error: ${e.message}"
+                    binding.tvNoStreams.text = "Error fetching streams."
                     isFetching = false
                 }
             }
@@ -104,9 +99,5 @@ class StreamBottomSheet(
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        private const val TAG = "StreamBottomSheet"
     }
 }

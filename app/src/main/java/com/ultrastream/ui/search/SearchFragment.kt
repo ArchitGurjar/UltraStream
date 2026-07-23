@@ -14,7 +14,7 @@ import com.ultrastream.UltraStreamApplication
 import com.ultrastream.data.models.MetaItem
 import com.ultrastream.databinding.FragmentSearchBinding
 import com.ultrastream.ui.adapters.PosterAdapter
-import com.ultrastream.utils.NetworkUtils
+import com.ultrastream.network.NetworkUtils
 import kotlinx.coroutines.*
 
 class SearchFragment : Fragment() {
@@ -68,24 +68,18 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupChips() {
-        val chips = binding.filterChipGroup
-        chips.setOnCheckedChangeListener { _, _ ->
+        binding.filterChipGroup.setOnCheckedChangeListener { _, _ ->
             val query = binding.searchInput.text.toString().trim()
             if (query.isNotEmpty()) {
                 searchJob?.cancel()
-                searchJob = viewLifecycleOwner.lifecycleScope.launch {
-                    performSearch(query)
-                }
+                searchJob = viewLifecycleOwner.lifecycleScope.launch { performSearch(query) }
             }
         }
-        val sortChips = binding.sortChipGroup
-        sortChips.setOnCheckedChangeListener { _, _ ->
+        binding.sortChipGroup.setOnCheckedChangeListener { _, _ ->
             val query = binding.searchInput.text.toString().trim()
             if (query.isNotEmpty()) {
                 searchJob?.cancel()
-                searchJob = viewLifecycleOwner.lifecycleScope.launch {
-                    performSearch(query)
-                }
+                searchJob = viewLifecycleOwner.lifecycleScope.launch { performSearch(query) }
             }
         }
     }
@@ -107,7 +101,9 @@ class SearchFragment : Fragment() {
         val addons = UltraStreamApplication.instance.repository.getEnabledAddons()
         if (addons.isEmpty()) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(requireContext(), "No addons enabled", Toast.LENGTH_SHORT).show()
+                if (_binding != null) {
+                    Toast.makeText(requireContext(), "No addons enabled", Toast.LENGTH_SHORT).show()
+                }
             }
             return
         }
@@ -119,14 +115,11 @@ class SearchFragment : Fragment() {
             for (addon in addons) {
                 for (catalog in addon.catalogs) {
                     if (filter != "all" && catalog.type != filter) continue
-                    val baseUrl = addon.url.replace("/manifest.json", "")
-                    val searchUrl = "$baseUrl/catalog/${catalog.type}/${catalog.id}/search=${query}.json"
                     val deferred = async<Unit> {
                         try {
                             val items = NetworkUtils.fetchCatalog(addon.url, catalog.type, catalog.id + "/search=" + query)
                             allResults.addAll(items)
-                        } catch (_: Exception) {
-                        }
+                        } catch (_: Exception) {}
                     }
                     deferredSearches.add(deferred)
                 }
@@ -140,7 +133,10 @@ class SearchFragment : Fragment() {
             "year" -> unique.sortedByDescending { it.year ?: 0 }
             else -> unique
         }
+        
+        // CRITICAL FIX: Prevent crash if fragment is closed before search finishes
         withContext(Dispatchers.Main) {
+            if (_binding == null) return@withContext
             adapter.submitList(sorted)
             if (sorted.isEmpty()) {
                 Toast.makeText(requireContext(), "No results found", Toast.LENGTH_SHORT).show()

@@ -1,13 +1,17 @@
-// app/src/main/java/com/ultrastream/MainActivity.kt
 package com.ultrastream
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ultrastream.databinding.ActivityMainBinding
+import com.ultrastream.data.models.Addon
+import com.ultrastream.data.models.Catalog
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,11 +30,30 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
 
-        // Handle back pressed
-        supportFragmentManager.addOnBackStackChangedListener {
-            val currentFragment = navHostFragment.childFragmentManager.fragments.firstOrNull()
-            if (currentFragment is OnBackPressedListener) {
-                currentFragment.onBackPressed()
+        // CRITICAL FIX: Inject Default Addons (Cinemeta & Torrentio) if DB is empty
+        lifecycleScope.launch {
+            val repo = UltraStreamApplication.instance.repository
+            val currentAddons = repo.getAddons().first()
+            if (currentAddons.isEmpty()) {
+                val defaultAddon = Addon(
+                    id = "com.stremio.cinemeta",
+                    url = "https://v3-cinemeta.strem.io/manifest.json",
+                    name = "Cinemeta",
+                    enabled = true,
+                    required = true,
+                    catalogs = listOf(
+                        Catalog("movie", "top", "Top Movies"),
+                        Catalog("series", "top", "Top Series")
+                    )
+                )
+                val torrentio = Addon(
+                    id = "torrentio",
+                    url = "https://torrentio.strem.fun/manifest.json",
+                    name = "Torrentio",
+                    enabled = true,
+                    required = false
+                )
+                repo.insertAddons(listOf(defaultAddon, torrentio))
             }
         }
     }
@@ -39,17 +62,5 @@ class MainActivity : AppCompatActivity() {
         if (!navController.popBackStack()) {
             super.onBackPressed()
         }
-    }
-
-    interface OnBackPressedListener {
-        fun onBackPressed(): Boolean
-    }
-
-    companion object {
-        const val REQUEST_CODE_PLAYER = 1001
-        const val EXTRA_MEDIA_URL = "media_url"
-        const val EXTRA_MEDIA_TITLE = "media_title"
-        const val EXTRA_SUBTITLE_URL = "subtitle_url"
-        const val EXTRA_IS_LIVE = "is_live"
     }
 }
