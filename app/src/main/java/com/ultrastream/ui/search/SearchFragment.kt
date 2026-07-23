@@ -1,6 +1,6 @@
+// app/src/main/java/com/ultrastream/ui/search/SearchFragment.kt
 package com.ultrastream.ui.search
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,25 +11,24 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.ultrastream.data.models.Addon
+import com.ultrastream.UltraStreamApplication
+import com.ultrastream.data.models.MetaItem
 import com.ultrastream.databinding.FragmentSearchBinding
 import com.ultrastream.ui.adapters.PosterAdapter
-import com.ultrastream.ui.home.MetaItem
-import com.ultrastream.ui.home.MetaResponse
+import com.ultrastream.utils.NetworkUtils
 import kotlinx.coroutines.*
-import java.net.URL
 
 class SearchFragment : Fragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
-    private val gson = Gson()
     private var searchJob: Job? = null
     private lateinit var adapter: PosterAdapter
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -38,13 +37,16 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = PosterAdapter { meta ->
-            // यहाँ बाद में DetailsActivity ओपन करने का कोड आएगा
-            Toast.makeText(requireContext(), "Selected: ${meta.name}", Toast.LENGTH_SHORT).show()
+            val intent = android.content.Intent(requireContext(), com.ultrastream.ui.details.DetailsActivity::class.java)
+            intent.putExtra(com.ultrastream.ui.details.DetailsActivity.EXTRA_META_ID, meta.id)
+            intent.putExtra(com.ultrastream.ui.details.DetailsActivity.EXTRA_META_TYPE, meta.type)
+            startActivity(intent)
         }
         binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.rvSearchResults.adapter = adapter
 
         setupSearchInput()
+        setupChips()
     }
 
     private fun setupSearchInput() {
@@ -53,10 +55,10 @@ class SearchFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val query = s?.toString()?.trim() ?: ""
-                searchJob?.cancel() // पुरानी सर्च कैंसल करें
+                searchJob?.cancel()
                 if (query.length >= 2) {
                     searchJob = viewLifecycleOwner.lifecycleScope.launch {
-                        delay(600) // 600ms Debounce (टाइप करने के बाद रुकने का समय)
+                        delay(600)
                         performSearch(query)
                     }
                 } else {
@@ -66,34 +68,68 @@ class SearchFragment : Fragment() {
         })
     }
 
-    private suspend fun performSearch(query: String) {
-        val prefs = requireContext().getSharedPreferences("addons_prefs", Context.MODE_PRIVATE)
-        val jsonString = prefs.getString("addons_json", null) ?: return
+    private fun setupChips() {
+        // Filter chips
+        val chips = binding.filterChipGroup
+        chips.setOnCheckedChangeListener { _, _ ->
+            val query = binding.searchInput.text.toString().trim()
+            if (query.isNotEmpty()) {
+                searchJob?.cancel()
+                searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                    performSearch(query)
+                }
+            }
+        }
+        // Sort chips
+        val sortChips = binding.sortChipGroup
+        sortChips.setOnCheckedChangeListener { _, _ ->
+            val query = binding.searchInput.text.toString().trim()
+            if (query.isNotEmpty()) {
+                searchJob?.cancel()
+                searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                    performSearch(query)
+                }
+            }
+        }
+    }
 
-        val type = object : TypeToken<List<Addon>>() {}.type
-        val addonsList: List<Addon> = try { gson.fromJson(jsonString, type) } catch (e: Exception) { emptyList() }
+    private suspend fun performSearch(query: String) {
+        val filter = when (binding.filterChipGroup.checkedChipId) {
+            com.ultrastream.R.id.chip_movie -> "movie"
+            com.ultrastream.R.id.chip_series -> "series"
+            com.ultrastream.R.id.chip_anime -> "anime"
+            com.ultrastream.R.id.chip_tv -> "tv"
+            else -> "all"
+        }
+        val sort = when (binding.sortChipGroup.checkedChipId) {
+            com.ultrastream.R.id.sort_rating -> "rating"
+            com.ultrastream.R.id.sort_year -> "year"
+            else -> "popular"
+        }
+
+        val addons = UltraStreamApplication.instance.repository.getEnabledAddons()
+        if (addons.isEmpty()) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "No addons enabled", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
 
         val allResults = mutableListOf<MetaItem>()
         val deferredSearches = mutableListOf<Deferred<Unit>>()
 
         withContext(Dispatchers.IO) {
-            for (addon in addonsList) {
-                if (!addon.enabled) continue
-                val baseUrl = addon.url.replace("/manifest.json", "")
-                
-                addon.catalogs.forEach { cat ->
-                    // सर्च URL बनाना
-                    val searchUrl = "$baseUrl/catalog/${cat.type}/${cat.id}/search=${query}.json"
-                    
+            for (addon in addons) {
+                for (catalog in addon.catalogs) {
+                    if (filter != "all" && catalog.type != filter) continue
+                    val baseUrl = addon.url.replace("/manifest.json", "")
+                    val searchUrl = "$baseUrl/catalog/${catalog.type}/${catalog.id}/search=${query}.json"
                     val deferred = async {
                         try {
-                            val responseJson = URL(searchUrl).readText()
-                            val metaResponse = gson.fromJson(responseJson, MetaResponse::class.java)
-                            metaResponse.metas?.forEach { 
-                                allResults.add(it) 
-                            }
-                        } catch (e: Exception) {
-                            // इग्नोर करें अगर कोई ऐडऑन फेल हो जाए
+                            val items = NetworkUtils.fetchCatalog(addon.url, catalog.type, catalog.id + "/search=" + query)
+                            allResults.addAll(items)
+                        } catch (_: Exception) {
+                            // ignore
                         }
                     }
                     deferredSearches.add(deferred)
@@ -102,14 +138,19 @@ class SearchFragment : Fragment() {
             deferredSearches.awaitAll()
         }
 
-        // डुप्लीकेट हटाएं और UI अपडेट करें
-        val uniqueResults = allResults.distinctBy { it.id }
-        
+        // Remove duplicates
+        val unique = allResults.distinctBy { it.id }
+        // Sort if needed
+        val sorted = when (sort) {
+            "rating" -> unique.sortedByDescending { it.imdbRating ?: 0f }
+            "year" -> unique.sortedByDescending { it.year ?: 0 }
+            else -> unique
+        }
         withContext(Dispatchers.Main) {
-            if (uniqueResults.isEmpty()) {
+            adapter.submitList(sorted)
+            if (sorted.isEmpty()) {
                 Toast.makeText(requireContext(), "No results found", Toast.LENGTH_SHORT).show()
             }
-            adapter.submitList(uniqueResults)
         }
     }
 
