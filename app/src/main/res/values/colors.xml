@@ -14,7 +14,7 @@
     <color name="accent_purple">#a78bfa</color>
     <color name="accent_orange">#fb923c</color>
     
-    <!-- Custom Button Backgrounds (From Stream Options Screenshot) -->
+    <!-- Custom Button Backgrounds -->
     <color name="btn_bg_cyan">#38bdf8</color>
     <color name="btn_bg_purple">#2d1b4e</color>
     <color name="btn_bg_dark">#1f1f1f</color>
@@ -23,7 +23,7 @@
     <color name="btn_bg_darkgreen">#1a3a2a</color>
     
     <color name="transparent">#00000000</color>
-</resources>
-    <!-- Fix Missing Colors -->
+
+    <!-- Missing Colors Fixed -->
     <color name="dark_text_main">#ffffff</color>
-    <color name="dark_bg_surface">#121212</color>
+</resources>
