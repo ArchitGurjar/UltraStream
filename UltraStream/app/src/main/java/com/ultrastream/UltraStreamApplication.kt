@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/UltraStreamApplication.kt
 package com.ultrastream
 
 import android.app.Application
@@ -17,17 +16,13 @@ class UltraStreamApplication : Application() {
         super.onCreate()
         instance = this
 
-        // Initialize Room
         database = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "ultrastream.db"
         ).fallbackToDestructiveMigration().build()
 
-        // Initialize Preferences
         prefs = PreferencesManager(this)
-
-        // Initialize Repository
         repository = AppRepository(database, prefs)
     }
 

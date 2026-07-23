@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/home/HomeFragment.kt
 package com.ultrastream.ui.home
 
 import android.os.Bundle
@@ -9,7 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import com.ultrastream.R
 import com.ultrastream.UltraStreamApplication
 import com.ultrastream.databinding.FragmentHomeBinding
 import com.ultrastream.ui.adapters.PosterAdapter
@@ -34,7 +32,6 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = PosterAdapter { meta ->
-            // Open details
             val intent = android.content.Intent(requireContext(), com.ultrastream.ui.details.DetailsActivity::class.java)
             intent.putExtra(com.ultrastream.ui.details.DetailsActivity.EXTRA_META_ID, meta.id)
             intent.putExtra(com.ultrastream.ui.details.DetailsActivity.EXTRA_META_TYPE, meta.type)
@@ -60,7 +57,6 @@ class HomeFragment : Fragment() {
                     allItems.addAll(items)
                 }
             }
-            // Remove duplicates by id
             val unique = allItems.distinctBy { it.id }
             adapter.submitList(unique)
         }

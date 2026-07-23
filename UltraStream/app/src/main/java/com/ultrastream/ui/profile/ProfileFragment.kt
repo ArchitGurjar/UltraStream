@@ -1,10 +1,10 @@
-// app/src/main/java/com/ultrastream/ui/profile/ProfileFragment.kt
 package com.ultrastream.ui.profile
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ultrastream.UltraStreamApplication
@@ -40,7 +40,7 @@ class ProfileFragment : Fragment() {
             val profile = UltraStreamApplication.instance.repository.getProfile(profileId)
             if (profile != null) {
                 binding.profileNameDisplay.text = profile.name
-                binding.profileAvatarBig.setImageResource(android.R.drawable.ic_menu_edit) // placeholder
+                binding.profileAvatarBig.setImageResource(android.R.drawable.ic_menu_edit)
             }
             val watchlist = UltraStreamApplication.instance.repository.getWatchlist()
             binding.profileWatchlistCount.text = "Watchlist: ${watchlist.size} items"
@@ -72,7 +72,6 @@ class ProfileFragment : Fragment() {
 
     private fun setupExportImport() {
         binding.exportDataBtn.setOnClickListener {
-            // Export all data as JSON
             lifecycleScope.launch {
                 val data = mapOf(
                     "addons" to UltraStreamApplication.instance.repository.getAddons().first(),
@@ -99,7 +98,6 @@ class ProfileFragment : Fragment() {
         }
 
         binding.importDataBtn.setOnClickListener {
-            // Use activity result launcher for file picker
             val intent = android.content.Intent(android.content.Intent.ACTION_GET_CONTENT)
             intent.type = "application/json"
             startActivityForResult(intent, 100)
@@ -109,8 +107,7 @@ class ProfileFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == android.app.Activity.RESULT_OK) {
-            val uri = data?.data
-            uri?.let { importData(it) }
+            data?.data?.let { importData(it) }
         }
     }
 
@@ -121,10 +118,9 @@ class ProfileFragment : Fragment() {
             val gson = com.google.gson.Gson()
             val type = object : com.google.gson.reflect.TypeToken<Map<String, Any>>() {}.type
             val data: Map<String, Any> = gson.fromJson(json, type)
-            // Restore logic...
-            android.widget.Toast.makeText(requireContext(), "Data restored", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Data restored", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            android.widget.Toast.makeText(requireContext(), "Failed to restore: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Failed to restore: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -136,7 +132,7 @@ class ProfileFragment : Fragment() {
                 .setPositiveButton("Yes") { _, _ ->
                     lifecycleScope.launch {
                         UltraStreamApplication.instance.repository.clearAllData()
-                        android.widget.Toast.makeText(requireContext(), "Data cleared", android.widget.Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Data cleared", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .setNegativeButton("No", null)

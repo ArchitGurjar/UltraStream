@@ -1,8 +1,8 @@
-// app/src/main/java/com/ultrastream/ui/details/DetailsActivity.kt
 package com.ultrastream.ui.details
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -89,14 +89,21 @@ class DetailsActivity : AppCompatActivity() {
             val chip = Chip(this).apply {
                 text = actor
                 isClickable = true
-                setOnClickListener { /* search actor */ }
+                setOnClickListener {
+                    // Search for actor
+                    val intent = android.content.Intent(this@DetailsActivity, com.ultrastream.ui.search.SearchFragment::class.java)
+                    // Not implemented in this simplified version
+                }
             }
             binding.castChipGroup.addView(chip)
         }
 
         if (!meta.imdbId.isNullOrEmpty()) {
             binding.btnImdb.visibility = View.VISIBLE
-            binding.btnImdb.setOnClickListener { /* open IMDb */ }
+            binding.btnImdb.setOnClickListener {
+                val url = "https://www.imdb.com/title/${meta.imdbId}"
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+            }
         }
 
         val isEpisodic = !meta.videos.isNullOrEmpty()
@@ -133,7 +140,6 @@ class DetailsActivity : AppCompatActivity() {
             showStreams(episode)
         }
 
-        // Show season selector
         val seasonBtn = binding.sectionMore
         seasonBtn.visibility = View.VISIBLE
         seasonBtn.text = "Season $currentSeason ▼"
@@ -183,10 +189,10 @@ class DetailsActivity : AppCompatActivity() {
             val idx = watchlist.indexOfFirst { it.id == metaId }
             if (idx != -1) {
                 watchlist.removeAt(idx)
-                android.widget.Toast.makeText(this@DetailsActivity, "Removed from watchlist", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@DetailsActivity, "Removed from watchlist", Toast.LENGTH_SHORT).show()
             } else {
                 watchlist.add(meta)
-                android.widget.Toast.makeText(this@DetailsActivity, "Added to watchlist", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@DetailsActivity, "Added to watchlist", Toast.LENGTH_SHORT).show()
             }
             (application as UltraStreamApplication).repository.setWatchlist(watchlist)
             updateWatchlistIcon()
@@ -210,10 +216,10 @@ class DetailsActivity : AppCompatActivity() {
             val idx = library.indexOfFirst { it.id == metaId }
             if (idx != -1) {
                 library.removeAt(idx)
-                android.widget.Toast.makeText(this@DetailsActivity, "Removed from library", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@DetailsActivity, "Removed from library", Toast.LENGTH_SHORT).show()
             } else {
                 library.add(meta)
-                android.widget.Toast.makeText(this@DetailsActivity, "Added to library", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@DetailsActivity, "Added to library", Toast.LENGTH_SHORT).show()
             }
             (application as UltraStreamApplication).repository.setLibrary(library)
             updateLibraryIcon()

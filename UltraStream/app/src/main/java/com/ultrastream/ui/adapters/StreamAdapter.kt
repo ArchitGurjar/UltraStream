@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/adapters/StreamAdapter.kt
 package com.ultrastream.ui.adapters
 
 import android.content.res.ColorStateList

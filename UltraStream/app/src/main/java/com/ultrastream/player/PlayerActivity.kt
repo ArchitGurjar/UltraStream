@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/player/PlayerActivity.kt
 package com.ultrastream.player
 
 import android.content.pm.ActivityInfo
@@ -23,8 +22,6 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Util
 import com.ultrastream.R
 import com.ultrastream.databinding.ActivityPlayerBinding
-import com.ultrastream.utils.LinkVerifier
-import kotlinx.coroutines.*
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -164,7 +161,7 @@ class PlayerActivity : AppCompatActivity() {
                 touchX = event.x
                 touchY = event.y
                 startBrightness = window.attributes.screenBrightness
-                startVolume = 0f
+                startVolume = player.volume
             }
             MotionEvent.ACTION_MOVE -> {
                 val deltaX = event.x - touchX
@@ -177,7 +174,6 @@ class PlayerActivity : AppCompatActivity() {
                         screenBrightness = newBrightness
                     }
                 } else if (event.x > binding.playerView.width * 0.7f) {
-                    // Volume (we can adjust using ExoPlayer volume)
                     val volumeChange = -deltaY / binding.playerView.height
                     val newVolume = (startVolume + volumeChange).coerceIn(0f, 1f)
                     player.volume = newVolume

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/sheets/StreamBottomSheet.kt
 package com.ultrastream.ui.sheets
 
 import android.os.Bundle
@@ -12,7 +11,6 @@ import com.ultrastream.data.models.Stream
 import com.ultrastream.data.models.Video
 import com.ultrastream.ui.adapters.StreamAdapter
 import com.ultrastream.utils.EpisodeMatcher
-import com.ultrastream.utils.LinkVerifier
 import com.ultrastream.utils.NetworkUtils
 import kotlinx.coroutines.*
 
@@ -45,6 +43,7 @@ class StreamBottomSheet(
         } ?: "Streams"
 
         binding.sheetTitle.text = title
+        binding.btnClose.setOnClickListener { dismiss() }
 
         setupAdapter()
         fetchStreams()
@@ -80,14 +79,11 @@ class StreamBottomSheet(
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val result = NetworkUtils.fetchStreams(id, metaType)
-                // Apply episode matching if episode is provided
                 val filtered = if (episode != null) {
                     result.filter { EpisodeMatcher.isValidEpisodeStream(it, episode.season, episode.episode) }
                 } else {
                     result
                 }
-                // Verify links (optional, can be heavy)
-                // For now, we just display
                 withContext(Dispatchers.Main) {
                     streams.clear()
                     streams.addAll(filtered)

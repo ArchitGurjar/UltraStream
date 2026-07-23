@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/sheets/SeasonSelectBottomSheet.kt
 package com.ultrastream.ui.sheets
 
 import android.os.Bundle

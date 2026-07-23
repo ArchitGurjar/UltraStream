@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/sheets/M3UActionBottomSheet.kt
 package com.ultrastream.ui.sheets
 
 import android.content.Intent
@@ -12,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.ultrastream.R
 import com.ultrastream.databinding.SheetM3uActionsBinding
 import com.ultrastream.player.PlayerActivity
 import com.ultrastream.utils.M3UParser
@@ -39,6 +39,7 @@ class M3UActionBottomSheet(
 
         val entries = M3UParser.parse(m3uContent)
         binding.tvM3uDesc.text = "${entries.size} track${if (entries.size > 1) "s" else ""} • Choose an action below"
+        binding.btnClose.setOnClickListener { dismiss() }
 
         binding.btnExportM3u.setOnClickListener {
             exportM3U()

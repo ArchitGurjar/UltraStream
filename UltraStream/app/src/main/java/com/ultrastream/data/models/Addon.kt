@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/models/Addon.kt
 package com.ultrastream.data.models
 
 import androidx.room.Entity
@@ -18,7 +17,7 @@ data class Addon(
 )
 
 data class Catalog(
-    val type: String,          // movie, series, anime, tv
+    val type: String,
     val id: String,
     val name: String,
     val extraSupported: List<String>? = null,

@@ -1,10 +1,7 @@
-// app/src/main/java/com/ultrastream/utils/LinkVerifier.kt
 package com.ultrastream.utils
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
-import java.net.URL
 import java.util.concurrent.TimeUnit
 
 object LinkVerifier {
@@ -37,15 +34,14 @@ object LinkVerifier {
                         .header("Accept", "*/*")
                         .header("Accept-Language", "en-US,en;q=0.9")
                         .build()
-                    val response = client.newCall(request).execute()
-                    response.use {
-                        if (!it.isSuccessful) return false
-                        val contentType = it.header("content-type") ?: ""
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) return false
+                        val contentType = response.header("content-type") ?: ""
                         if (contentType.contains("video") || contentType.contains("application/octet-stream")) {
                             return true
                         }
                         if (contentType.contains("text/html")) {
-                            val body = it.body?.string() ?: return false
+                            val body = response.body?.string() ?: return false
                             if (body.length < 2000) {
                                 if (listOf("error", "not found", "expired", "invalid", "access denied").any { body.contains(it, ignoreCase = true) }) {
                                     return false
@@ -53,7 +49,7 @@ object LinkVerifier {
                             }
                             return false
                         }
-                        val body = it.body?.string() ?: return false
+                        val body = response.body?.string() ?: return false
                         if (classification == "hls" && Regex("^#EXTM3U", RegexOption.MULTILINE).containsMatchIn(body) && body.contains("#EXTINF:", ignoreCase = true)) {
                             return true
                         }
@@ -67,32 +63,27 @@ object LinkVerifier {
                     // Direct or unknown
                     try {
                         val headRequest = Request.Builder().url(url).head().build()
-                        val headResponse = client.newCall(headRequest).execute()
-                        headResponse.use {
-                            if (it.isSuccessful) return true
-                        }
+                        client.newCall(headRequest).execute().use { if (it.isSuccessful) return true }
                     } catch (_: Exception) { }
 
-                    // Try range request
                     try {
                         val rangeRequest = Request.Builder()
                             .url(url)
                             .header("Range", "bytes=0-0")
                             .build()
-                        val rangeResponse = client.newCall(rangeRequest).execute()
-                        rangeResponse.use {
-                            if (it.code == 206 || it.code == 200) return true
-                            val contentType = it.header("content-type") ?: ""
+                        client.newCall(rangeRequest).execute().use { response ->
+                            if (response.code == 206 || response.code == 200) return true
+                            val contentType = response.header("content-type") ?: ""
                             if (contentType.contains("text/html")) return false
-                            if (it.code in 403..404) return false
-                            return it.code < 500
+                            if (response.code in 403..404) return false
+                            return response.code < 500
                         }
                     } catch (_: Exception) { }
                 }
             }
         } catch (_: Exception) { }
 
-        // Fallback: try no-cors mode (opaque) - we can't check, so assume it works.
+        // Fallback: assume working
         return true
     }
 

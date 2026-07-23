@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/models/Stream.kt
 package com.ultrastream.data.models
 
 import android.os.Parcelable

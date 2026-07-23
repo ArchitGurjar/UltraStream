@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/adapters/PosterAdapter.kt
 package com.ultrastream.ui.adapters
 
 import android.view.LayoutInflater
@@ -37,7 +36,7 @@ class PosterAdapter(
         fun bind(item: MetaItem) {
             Glide.with(binding.root.context)
                 .load(item.poster ?: item.background)
-                .placeholder(android.R.drawable.ic_menu_gallery)
+                .placeholder(com.ultrastream.R.drawable.placeholder_poster)
                 .into(binding.posterImage)
 
             binding.tvTitle.text = item.name
@@ -62,8 +61,6 @@ class PosterAdapter(
             } else {
                 binding.tvYear.visibility = android.view.View.GONE
             }
-
-            // Progress - we'll handle this separately
 
             binding.root.setOnClickListener {
                 onItemClick(item)

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/database/AppDatabase.kt
 package com.ultrastream.data.database
 
 import androidx.room.Database

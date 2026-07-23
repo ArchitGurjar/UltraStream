@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/sheets/SubtitleBottomSheet.kt
 package com.ultrastream.ui.sheets
 
 import android.content.Intent
@@ -37,6 +36,7 @@ class SubtitleBottomSheet(
         binding.rvSubtitles.adapter = SubtitleAdapter(subtitles) { subtitle ->
             downloadSubtitle(subtitle)
         }
+        binding.btnClose.setOnClickListener { dismiss() }
     }
 
     private fun downloadSubtitle(subtitle: Subtitle) {

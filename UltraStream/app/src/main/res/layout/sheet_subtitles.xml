@@ -30,8 +30,7 @@
             android:src="@drawable/ic_close"
             android:background="@drawable/round_button_bg"
             android:padding="8dp"
-            android:contentDescription="Close"
-            android:onClick="@{() -> dismiss()}" />
+            android:contentDescription="Close" />
 
     </LinearLayout>
 
@@ -40,7 +39,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxHeight="400dp"
-        android:paddingBottom="16dp"
- />
+        android:paddingBottom="16dp" />
 
 </LinearLayout>

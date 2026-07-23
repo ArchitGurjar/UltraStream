@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/sheets/PlaylistViewBottomSheet.kt
 package com.ultrastream.ui.sheets
 
 import android.os.Bundle
@@ -49,7 +48,6 @@ class PlaylistViewBottomSheet(
                 text2.text = "✅ Ready (${ep.stream.addonName})"
                 text2.setTextColor(requireContext().getColor(android.R.color.holo_green_light))
                 itemView.setOnClickListener {
-                    // Play
                     val actionSheet = StreamActionBottomSheet(ep.stream!!, ep.title)
                     actionSheet.show(parentFragmentManager, "stream_action")
                 }
@@ -57,7 +55,6 @@ class PlaylistViewBottomSheet(
                 text2.text = "❌ Missing - Tap to retry or manual pick"
                 text2.setTextColor(requireContext().getColor(android.R.color.holo_red_light))
                 itemView.setOnClickListener {
-                    // Retry or manual
                     showRetryOptions(ep)
                 }
             }
@@ -66,7 +63,6 @@ class PlaylistViewBottomSheet(
     }
 
     private fun showRetryOptions(ep: PlaylistEpisode) {
-        // Dialog with retry and manual pick
         val options = arrayOf("Auto Retry", "Manual Pick")
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Episode ${ep.epNum}")
@@ -88,11 +84,9 @@ class PlaylistViewBottomSheet(
                 val streams = NetworkUtils.fetchStreams(fullId, "series")
                 val valid = streams.filter { it.url != null }
                 if (valid.isNotEmpty()) {
-                    // Verify first link
                     val link = valid.first().url!!
                     val isAlive = LinkVerifier.verify(link)
                     if (isAlive) {
-                        // Update playlist
                         val updatedEp = ep.copy(stream = valid.first(), isMissing = false)
                         val updatedEpisodes = playlist.episodes.map { if (it.epNum == ep.epNum) updatedEp else it }
                         val updatedPlaylist = playlist.copy(episodes = updatedEpisodes)
@@ -112,12 +106,15 @@ class PlaylistViewBottomSheet(
     }
 
     private fun manualPick(ep: PlaylistEpisode) {
-        // Open stream bottom sheet for this episode
-        val sheet = StreamBottomSheet(playlist.metaId, "series", com.ultrastream.data.models.Video(
-            season = playlist.season,
-            episode = ep.epNum,
-            name = ep.epName
-        ))
+        val sheet = StreamBottomSheet(
+            playlist.metaId,
+            "series",
+            com.ultrastream.data.models.Video(
+                season = playlist.season,
+                episode = ep.epNum,
+                name = ep.epName
+            )
+        )
         sheet.show(parentFragmentManager, "manual_pick")
         dismiss()
     }

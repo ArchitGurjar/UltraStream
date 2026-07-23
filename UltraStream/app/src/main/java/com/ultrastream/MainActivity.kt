@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/MainActivity.kt
 package com.ultrastream
 
 import android.os.Bundle
@@ -25,31 +24,11 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
-
-        // Handle back pressed
-        supportFragmentManager.addOnBackStackChangedListener {
-            val currentFragment = navHostFragment.childFragmentManager.fragments.firstOrNull()
-            if (currentFragment is OnBackPressedListener) {
-                currentFragment.onBackPressed()
-            }
-        }
     }
 
     override fun onBackPressed() {
         if (!navController.popBackStack()) {
             super.onBackPressed()
         }
-    }
-
-    interface OnBackPressedListener {
-        fun onBackPressed(): Boolean
-    }
-
-    companion object {
-        const val REQUEST_CODE_PLAYER = 1001
-        const val EXTRA_MEDIA_URL = "media_url"
-        const val EXTRA_MEDIA_TITLE = "media_title"
-        const val EXTRA_SUBTITLE_URL = "subtitle_url"
-        const val EXTRA_IS_LIVE = "is_live"
     }
 }

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/utils/PreferencesManager.kt
 package com.ultrastream.utils
 
 import android.content.Context
@@ -17,42 +16,31 @@ class PreferencesManager(context: Context) {
         private const val KEY_CURRENT_PROFILE = "current_profile"
         private const val KEY_LIBRARY_JSON = "library_json"
         private const val KEY_WATCHLIST_JSON = "watchlist_json"
-        private const val KEY_CACHED_META_JSON = "cached_meta_json"
-        private const val KEY_DEFAULT = "default"
     }
 
-    // Theme
     fun getTheme(): String = prefs.getString(KEY_THEME, "dark") ?: "dark"
     fun setTheme(theme: String) = prefs.edit().putString(KEY_THEME, theme).apply()
 
-    // Hindi Priority
     fun getHindiPriority(): Boolean = prefs.getBoolean(KEY_HINDI_PRIORITY, true)
     fun setHindiPriority(enabled: Boolean) = prefs.edit().putBoolean(KEY_HINDI_PRIORITY, enabled).apply()
 
-    // Auto-play Next
     fun getAutoPlayNext(): Boolean = prefs.getBoolean(KEY_AUTOPLAY_NEXT, false)
     fun setAutoPlayNext(enabled: Boolean) = prefs.edit().putBoolean(KEY_AUTOPLAY_NEXT, enabled).apply()
 
-    // Parental Control
     fun getParentalControl(): Boolean = prefs.getBoolean(KEY_PARENTAL_CONTROL, false)
     fun setParentalControl(enabled: Boolean) = prefs.edit().putBoolean(KEY_PARENTAL_CONTROL, enabled).apply()
 
-    // Debrid Key
     fun getDebridKey(): String = prefs.getString(KEY_DEBRID_KEY, "") ?: ""
     fun setDebridKey(key: String) = prefs.edit().putString(KEY_DEBRID_KEY, key).apply()
 
-    // Current Profile
     fun getCurrentProfile(): String = prefs.getString(KEY_CURRENT_PROFILE, "default") ?: "default"
     fun setCurrentProfile(id: String) = prefs.edit().putString(KEY_CURRENT_PROFILE, id).apply()
 
-    // Library JSON
     fun getLibraryJson(): String = prefs.getString(KEY_LIBRARY_JSON, "") ?: ""
     fun setLibraryJson(json: String) = prefs.edit().putString(KEY_LIBRARY_JSON, json).apply()
 
-    // Watchlist JSON
     fun getWatchlistJson(): String = prefs.getString(KEY_WATCHLIST_JSON, "") ?: ""
     fun setWatchlistJson(json: String) = prefs.edit().putString(KEY_WATCHLIST_JSON, json).apply()
 
-    // Clear all
     fun clearAll() = prefs.edit().clear().apply()
 }

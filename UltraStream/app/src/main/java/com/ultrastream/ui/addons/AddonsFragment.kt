@@ -1,7 +1,5 @@
-// app/src/main/java/com/ultrastream/ui/addons/AddonsFragment.kt
 package com.ultrastream.ui.addons
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -78,12 +76,18 @@ class AddonsFragment : Fragment() {
             binding.installedAddonsContainer.removeAllViews()
             for (addon in addons) {
                 val card = layoutInflater.inflate(R.layout.installed_addon_card, binding.installedAddonsContainer, false)
-                // Assume we have a custom layout; for simplicity, just add a TextView
-                val tv = android.widget.TextView(requireContext())
-                tv.text = "${addon.name} (${if (addon.enabled) "Enabled" else "Disabled"})"
-                tv.setPadding(0, 16, 0, 16)
-                tv.setTextColor(requireContext().getColor(android.R.color.white))
-                binding.installedAddonsContainer.addView(tv)
+                val name = card.findViewById<android.widget.TextView>(R.id.addon_name)
+                name.text = "${addon.name} (${if (addon.enabled) "Enabled" else "Disabled"})"
+                val toggle = card.findViewById<android.widget.Button>(R.id.btn_toggle)
+                toggle.text = if (addon.enabled) "Disable" else "Enable"
+                toggle.setOnClickListener {
+                    lifecycleScope.launch {
+                        val updated = addon.copy(enabled = !addon.enabled)
+                        UltraStreamApplication.instance.repository.updateAddon(updated)
+                        loadAddons()
+                    }
+                }
+                binding.installedAddonsContainer.addView(card)
             }
         }
     }
@@ -96,8 +100,8 @@ class AddonsFragment : Fragment() {
                     id = manifest.id,
                     url = url,
                     name = manifest.name,
-                    catalogs = manifest.catalogs.map { 
-                        com.ultrastream.data.models.Catalog(it.type, it.id, it.name) 
+                    catalogs = manifest.catalogs.map {
+                        com.ultrastream.data.models.Catalog(it.type, it.id, it.name)
                     }
                 )
                 UltraStreamApplication.instance.repository.insertAddon(addon)

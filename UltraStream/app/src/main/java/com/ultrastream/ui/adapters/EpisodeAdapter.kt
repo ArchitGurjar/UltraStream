@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/adapters/EpisodeAdapter.kt
 package com.ultrastream.ui.adapters
 
 import android.view.LayoutInflater
@@ -39,7 +38,7 @@ class EpisodeAdapter(
         fun bind(episode: Video) {
             Glide.with(binding.root.context)
                 .load(episode.thumbnail)
-                .placeholder(android.R.drawable.ic_menu_gallery)
+                .placeholder(com.ultrastream.R.drawable.placeholder_poster)
                 .into(binding.epThumb)
 
             binding.epBadge.text = "S${episode.season.toString().padStart(2, '0')}E${episode.episode.toString().padStart(2, '0')}"

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/database/dao/ProfileDao.kt
 package com.ultrastream.data.database
 
 import androidx.room.*

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/database/dao/WatchProgressDao.kt
 package com.ultrastream.data.database
 
 import androidx.room.*

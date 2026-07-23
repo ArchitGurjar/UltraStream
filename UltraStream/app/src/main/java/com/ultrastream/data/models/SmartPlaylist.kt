@@ -1,9 +1,7 @@
-// app/src/main/java/com/ultrastream/data/models/SmartPlaylist.kt
 package com.ultrastream.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 @Entity(tableName = "smart_playlists")

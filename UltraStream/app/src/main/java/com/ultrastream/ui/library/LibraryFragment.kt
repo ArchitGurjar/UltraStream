@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/library/LibraryFragment.kt
 package com.ultrastream.ui.library
 
 import android.os.Bundle
@@ -16,6 +15,8 @@ import com.ultrastream.ui.adapters.PosterAdapter
 import com.ultrastream.ui.adapters.SmartPlaylistAdapter
 import com.ultrastream.ui.details.DetailsActivity
 import com.ultrastream.ui.sheets.M3UActionBottomSheet
+import com.ultrastream.ui.sheets.PlaylistViewBottomSheet
+import com.ultrastream.utils.M3UParser
 import kotlinx.coroutines.launch
 
 class LibraryFragment : Fragment() {
@@ -43,14 +44,13 @@ class LibraryFragment : Fragment() {
     private fun setupSmartPlaylists() {
         val adapter = SmartPlaylistAdapter(
             onItemClick = { playlist ->
-                // Open playlist sheet
-                val sheet = com.ultrastream.ui.sheets.PlaylistViewBottomSheet(playlist)
+                val sheet = PlaylistViewBottomSheet(playlist)
                 sheet.show(parentFragmentManager, "playlist_view")
             },
             onM3UClick = { playlist ->
-                val m3u = com.ultrastream.utils.M3UParser.generate(
-                    playlist.episodes.map { 
-                        com.ultrastream.utils.M3UParser.M3UEntry(
+                val m3u = M3UParser.generate(
+                    playlist.episodes.map {
+                        M3UParser.M3UEntry(
                             title = "${playlist.metaName} - S${playlist.season}E${it.epNum} ${it.epName}",
                             url = it.stream?.url ?: it.stream?.streamUrl ?: ""
                         )

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/models/AddonManifest.kt
 package com.ultrastream.data.models
 
 data class AddonManifest(

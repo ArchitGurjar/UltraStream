@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/adapters/ContinueWatchingAdapter.kt
 package com.ultrastream.ui.adapters
 
 import android.view.LayoutInflater
@@ -40,7 +39,7 @@ class ContinueWatchingAdapter(
         fun bind(item: WatchHistory) {
             Glide.with(binding.root.context)
                 .load(item.poster)
-                .placeholder(android.R.drawable.ic_menu_gallery)
+                .placeholder(com.ultrastream.R.drawable.placeholder_poster)
                 .into(binding.cwThumb)
 
             binding.cwTitle.text = item.name

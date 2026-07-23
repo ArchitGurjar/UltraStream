@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/models/Profile.kt
 package com.ultrastream.data.models
 
 import androidx.room.Entity

@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/data/models/MetaItem.kt
 package com.ultrastream.data.models
 
 import androidx.room.Entity
@@ -10,7 +9,7 @@ import java.io.Serializable
 data class MetaItem(
     @PrimaryKey
     val id: String,
-    val type: String,           // movie, series, anime, tv
+    val type: String,
     val name: String,
     val poster: String? = null,
     val background: String? = null,

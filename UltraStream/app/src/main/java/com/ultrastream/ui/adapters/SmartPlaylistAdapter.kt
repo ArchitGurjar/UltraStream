@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/adapters/SmartPlaylistAdapter.kt
 package com.ultrastream.ui.adapters
 
 import android.view.LayoutInflater
@@ -40,7 +39,7 @@ class SmartPlaylistAdapter(
         fun bind(playlist: SmartPlaylist) {
             Glide.with(binding.root.context)
                 .load(playlist.poster)
-                .placeholder(android.R.drawable.ic_menu_gallery)
+                .placeholder(com.ultrastream.R.drawable.placeholder_poster)
                 .into(binding.playlistThumb)
 
             binding.playlistTitle.text = playlist.metaName
