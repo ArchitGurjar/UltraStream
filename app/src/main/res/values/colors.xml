@@ -24,3 +24,6 @@
     
     <color name="transparent">#00000000</color>
 </resources>
+    <!-- Fix Missing Colors -->
+    <color name="dark_text_main">#ffffff</color>
+    <color name="dark_bg_surface">#121212</color>
