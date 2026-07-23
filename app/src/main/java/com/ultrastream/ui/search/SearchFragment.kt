@@ -15,9 +15,7 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
         return binding.root
@@ -25,10 +23,14 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val adapter = PosterAdapter { /* navigate */ }
-        binding.rvSearchResults.layoutManager = GridLayoutManager(context, 2)
-        binding.rvSearchResults.adapter = adapter
+        try {
+            // Nullable context की जगह requireContext() का इस्तेमाल (क्रैश रोकेगा)
+            binding.rvSearchResults.layoutManager = GridLayoutManager(requireContext(), 2)
+            val adapter = PosterAdapter { /* navigate */ }
+            binding.rvSearchResults.adapter = adapter
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onDestroyView() {

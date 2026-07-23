@@ -1,24 +1,32 @@
-// app/src/main/java/com/ultrastream/ui/addons/AddonsFragment.kt
 package com.ultrastream.ui.addons
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.ultrastream.data.models.Addon
 import com.ultrastream.databinding.FragmentAddonsBinding
-import kotlinx.coroutines.launch
 
 class AddonsFragment : Fragment() {
 
     private var _binding: FragmentAddonsBinding? = null
     private val binding get() = _binding!!
+    private val gson = Gson()
+
+    // File Picker Launcher for JSON Import
+    private val importLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { parseAndLoadAddons(it) }
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddonsBinding.inflate(inflater, container, false)
         return binding.root
@@ -27,52 +35,55 @@ class AddonsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupDebrid()
-        setupInstallAddon()
-        loadInstalledAddons()
-        loadRecommendedAddons()
-        setupExportImport()
-        setupFactoryReset()
-    }
-
-    private fun setupDebrid() {
-        binding.saveDebridBtn.setOnClickListener {
-            val key = binding.debridKeyInput.text.toString()
-            // Save to repository
-            // Update status
+        binding.importAddonsBtn.setOnClickListener {
+            importLauncher.launch("*/*") // JSON फाइल सेलेक्ट करने के लिए
         }
-    }
 
-    private fun setupInstallAddon() {
         binding.installAddonBtn.setOnClickListener {
             val url = binding.addonUrlInput.text.toString()
-            // Install addon via repository
+            if (url.isNotEmpty()) {
+                Toast.makeText(requireContext(), "Installing Addon...", Toast.LENGTH_SHORT).show()
+                addAddonToView("Custom Addon", url)
+                binding.addonUrlInput.text?.clear()
+            }
         }
-    }
 
-    private fun loadInstalledAddons() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            // Fetch addons and populate binding.installedAddonsContainer
-        }
-    }
-
-    private fun loadRecommendedAddons() {
-        // Populate binding.recommendedAddonsContainer
-    }
-
-    private fun setupExportImport() {
-        binding.exportAddonsBtn.setOnClickListener {
-            // Export addons to JSON
-        }
-        binding.importAddonsBtn.setOnClickListener {
-            // Launch file picker
-        }
-    }
-
-    private fun setupFactoryReset() {
         binding.factoryResetBtn.setOnClickListener {
-            // Clear addons data
+            binding.installedAddonsContainer.removeAllViews()
+            Toast.makeText(requireContext(), "All addons cleared!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun parseAndLoadAddons(uri: Uri) {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val jsonString = inputStream?.bufferedReader().use { it?.readText() }
+            
+            // Gson से JSON को List<Addon> में बदलें
+            val type = object : TypeToken<List<Addon>>() {}.type
+            val addonsList: List<Addon> = gson.fromJson(jsonString, type)
+
+            binding.installedAddonsContainer.removeAllViews()
+            addonsList.forEach { addon ->
+                addAddonToView(addon.name, addon.url)
+            }
+            
+            Toast.makeText(requireContext(), "Successfully imported ${addonsList.size} Addons!", Toast.LENGTH_LONG).show()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Failed to import JSON!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun addAddonToView(name: String, url: String) {
+        val tv = TextView(requireContext()).apply {
+            text = "✅ $name\n$url"
+            textSize = 14f
+            setPadding(0, 16, 0, 24)
+            setTextColor(requireContext().getColor(android.R.color.white))
+        }
+        binding.installedAddonsContainer.addView(tv)
     }
 
     override fun onDestroyView() {
