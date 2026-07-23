@@ -51,7 +51,8 @@ class StreamBottomSheet(
 
     private fun setupAdapter() {
         adapter = StreamAdapter { stream ->
-            val actionSheet = StreamActionBottomSheet(stream, getStreamTitle())
+            val episodeKey = episode?.let { "${metaId}_s${it.season}_e${it.episode}" }
+            val actionSheet = StreamActionBottomSheet(stream, getStreamTitle(), metaId, episodeKey)
             actionSheet.show(parentFragmentManager, "stream_action")
         }
         binding.rvStreams.adapter = adapter

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ultrastream.R
 import com.ultrastream.UltraStreamApplication
 import com.ultrastream.databinding.FragmentLibraryBinding
 import com.ultrastream.ui.adapters.ContinueWatchingAdapter
@@ -23,6 +24,7 @@ class LibraryFragment : Fragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!
+    private lateinit var viewModel: LibraryViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,10 +37,14 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = androidx.lifecycle.ViewModelProvider(this).get(LibraryViewModel::class.java)
+
         setupSmartPlaylists()
         setupHistory()
         setupWatchlist()
         setupLibraryGrid()
+
+        viewModel.loadAllData()
     }
 
     private fun setupSmartPlaylists() {
@@ -60,17 +66,13 @@ class LibraryFragment : Fragment() {
                 sheet.show(parentFragmentManager, "m3u_actions")
             },
             onDeleteClick = { playlist ->
-                lifecycleScope.launch {
-                    UltraStreamApplication.instance.repository.deletePlaylist(playlist.id)
-                    setupSmartPlaylists()
-                }
+                viewModel.deletePlaylist(playlist.id)
             }
         )
         binding.rvSmartPlaylists.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.rvSmartPlaylists.adapter = adapter
 
-        lifecycleScope.launch {
-            val playlists = UltraStreamApplication.instance.repository.getPlaylists().first()
+        viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
             adapter.submitList(playlists)
         }
     }
@@ -85,10 +87,11 @@ class LibraryFragment : Fragment() {
         binding.rvLibHistory.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.rvLibHistory.adapter = adapter
 
-        lifecycleScope.launch {
-            val history = UltraStreamApplication.instance.repository.getHistory().first()
-            val progress = UltraStreamApplication.instance.repository.getProgress().first().associate { it.id to it }
-            adapter.submitList(history, progress)
+        viewModel.history.observe(viewLifecycleOwner) { history ->
+            adapter.submitList(history, viewModel.progressMap.value ?: emptyMap())
+        }
+        viewModel.progressMap.observe(viewLifecycleOwner) { progress ->
+            adapter.submitList(viewModel.history.value ?: emptyList(), progress)
         }
     }
 
@@ -102,8 +105,7 @@ class LibraryFragment : Fragment() {
         binding.rvWatchlist.layoutManager = GridLayoutManager(context, 2)
         binding.rvWatchlist.adapter = adapter
 
-        lifecycleScope.launch {
-            val watchlist = UltraStreamApplication.instance.repository.getWatchlist()
+        viewModel.watchlist.observe(viewLifecycleOwner) { watchlist ->
             adapter.submitList(watchlist)
         }
     }
@@ -118,8 +120,7 @@ class LibraryFragment : Fragment() {
         binding.rvLibraryGrid.layoutManager = GridLayoutManager(context, 2)
         binding.rvLibraryGrid.adapter = adapter
 
-        lifecycleScope.launch {
-            val library = UltraStreamApplication.instance.repository.getLibrary()
+        viewModel.library.observe(viewLifecycleOwner) { library ->
             adapter.submitList(library)
         }
     }

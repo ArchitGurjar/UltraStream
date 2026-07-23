@@ -18,7 +18,9 @@ import com.ultrastream.player.PlayerActivity
 
 class StreamActionBottomSheet(
     private val stream: Stream,
-    private val title: String
+    private val title: String,
+    private val metaId: String? = null,
+    private val episodeKey: String? = null
 ) : BottomSheetDialogFragment() {
 
     private var _binding: SheetStreamActionBinding? = null
@@ -45,6 +47,8 @@ class StreamActionBottomSheet(
                 putExtra(PlayerActivity.EXTRA_MEDIA_URL, url)
                 putExtra(PlayerActivity.EXTRA_MEDIA_TITLE, title)
                 putExtra(PlayerActivity.EXTRA_IS_LIVE, stream.isLive)
+                if (metaId != null) putExtra(PlayerActivity.EXTRA_META_ID, metaId)
+                if (episodeKey != null) putExtra(PlayerActivity.EXTRA_EPISODE_KEY, episodeKey)
             }
             startActivity(intent)
             dismiss()

@@ -3,26 +3,25 @@ package com.ultrastream.ui.details
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.ultrastream.R
-import com.ultrastream.UltraStreamApplication
 import com.ultrastream.databinding.ActivityDetailsBinding
-import com.ultrastream.data.models.MetaItem
 import com.ultrastream.data.models.Video
 import com.ultrastream.ui.adapters.EpisodeAdapter
 import com.ultrastream.ui.sheets.SeasonSelectBottomSheet
 import com.ultrastream.ui.sheets.StreamBottomSheet
-import com.ultrastream.utils.NetworkUtils
 import kotlinx.coroutines.launch
 
 class DetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailsBinding
-    private lateinit var meta: MetaItem
+    private val viewModel: DetailsViewModel by viewModels()
+
     private var metaId: String = ""
     private var metaType: String = ""
 
@@ -38,32 +37,41 @@ class DetailsActivity : AppCompatActivity() {
         metaId = intent.getStringExtra(EXTRA_META_ID) ?: ""
         metaType = intent.getStringExtra(EXTRA_META_TYPE) ?: "movie"
 
-        loadMetadata()
+        setupObservers()
         setupListeners()
+        viewModel.loadMeta(metaId, metaType)
     }
 
-    private fun loadMetadata() {
-        showLoading(true)
-        lifecycleScope.launch {
-            var cached = (application as UltraStreamApplication).repository.getCachedMeta(metaId)
-            if (cached == null) {
-                val fetched = NetworkUtils.fetchMeta(metaId, metaType)
-                if (fetched != null) {
-                    (application as UltraStreamApplication).repository.cacheMeta(fetched)
-                    meta = fetched
-                } else {
-                    showLoading(false)
-                    return@launch
-                }
+    private fun setupObservers() {
+        viewModel.meta.observe(this) { meta ->
+            if (meta != null) {
+                populateUI(meta)
             } else {
-                meta = cached
+                showLoading(false)
+                Toast.makeText(this, "Metadata not found", Toast.LENGTH_SHORT).show()
             }
-            showLoading(false)
-            populateUI()
+        }
+
+        viewModel.isInWatchlist.observe(this) { inWatchlist ->
+            binding.btnWatchlist.setImageResource(
+                if (inWatchlist) R.drawable.ic_watchlist_filled else R.drawable.ic_watchlist
+            )
+        }
+
+        viewModel.isInLibrary.observe(this) { inLibrary ->
+            binding.btnLibrary.setImageResource(
+                if (inLibrary) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark
+            )
+        }
+
+        viewModel.episodeProgress.observe(this) { progressMap ->
+            episodeAdapter.updateProgress(progressMap)
         }
     }
 
-    private fun populateUI() {
+    private fun populateUI(meta: com.ultrastream.data.models.MetaItem) {
+        showLoading(false)
+
         Glide.with(this)
             .load(meta.poster ?: meta.background)
             .placeholder(R.drawable.placeholder_poster)
@@ -85,14 +93,13 @@ class DetailsActivity : AppCompatActivity() {
             }
         }
 
+        binding.castChipGroup.removeAllViews()
         meta.cast?.take(8)?.forEach { actor ->
             val chip = Chip(this).apply {
                 text = actor
                 isClickable = true
                 setOnClickListener {
-                    // Search for actor
-                    val intent = android.content.Intent(this@DetailsActivity, com.ultrastream.ui.search.SearchFragment::class.java)
-                    // Not implemented in this simplified version
+                    // Search for actor - not implemented
                 }
             }
             binding.castChipGroup.addView(chip)
@@ -110,20 +117,25 @@ class DetailsActivity : AppCompatActivity() {
         if (isEpisodic) {
             binding.episodesContainer.visibility = View.VISIBLE
             binding.btnFindStreams.visibility = View.GONE
-            setupEpisodes()
+            setupEpisodes(meta)
         } else {
             binding.episodesContainer.visibility = View.GONE
             binding.btnFindStreams.visibility = View.VISIBLE
             binding.btnFindStreams.setOnClickListener {
-                showStreams(null)
+                showStreams(null, meta)
             }
         }
 
-        updateWatchlistIcon()
-        updateLibraryIcon()
+        // Watchlist/Library toggle listeners
+        binding.btnWatchlist.setOnClickListener {
+            viewModel.toggleWatchlist(meta)
+        }
+        binding.btnLibrary.setOnClickListener {
+            viewModel.toggleLibrary(meta)
+        }
     }
 
-    private fun setupEpisodes() {
+    private fun setupEpisodes(meta: com.ultrastream.data.models.MetaItem) {
         val videos = meta.videos ?: emptyList()
         allEpisodes = videos.filter { it.season > 0 && it.episode > 0 }
             .sortedWith(compareBy<Video> { it.season }.thenBy { it.episode })
@@ -136,15 +148,23 @@ class DetailsActivity : AppCompatActivity() {
 
         currentSeason = allEpisodes.firstOrNull()?.season ?: 1
 
-        episodeAdapter = EpisodeAdapter { episode ->
-            showStreams(episode)
-        }
+        episodeAdapter = EpisodeAdapter(
+            onItemClick = { episode ->
+                showStreams(episode, meta)
+            },
+            onMarkWatched = { episode ->
+                viewModel.markEpisodeWatched(meta.id, episode.season, episode.episode)
+            }
+        )
+        binding.rvEpisodes.layoutManager = LinearLayoutManager(this)
+        binding.rvEpisodes.adapter = episodeAdapter
 
+        // Season selector
         val seasonBtn = binding.sectionMore
         seasonBtn.visibility = View.VISIBLE
         seasonBtn.text = "Season $currentSeason ▼"
         seasonBtn.setOnClickListener {
-            showSeasonSelector()
+            showSeasonSelector(meta)
         }
 
         renderEpisodes()
@@ -152,12 +172,11 @@ class DetailsActivity : AppCompatActivity() {
 
     private fun renderEpisodes() {
         val filtered = allEpisodes.filter { it.season == currentSeason }
-        binding.rvEpisodes.layoutManager = LinearLayoutManager(this)
-        binding.rvEpisodes.adapter = episodeAdapter
-        episodeAdapter.submitList(filtered)
+        val progressMap = viewModel.episodeProgress.value ?: emptyMap()
+        episodeAdapter.submitList(filtered, progressMap)
     }
 
-    private fun showSeasonSelector() {
+    private fun showSeasonSelector(meta: com.ultrastream.data.models.MetaItem) {
         val seasons = allEpisodes.map { it.season }.distinct().sorted()
         val bottomSheet = SeasonSelectBottomSheet(seasons, currentSeason) { selectedSeason ->
             currentSeason = selectedSeason
@@ -167,63 +186,9 @@ class DetailsActivity : AppCompatActivity() {
         bottomSheet.show(supportFragmentManager, "season_selector")
     }
 
-    private fun showStreams(episode: Video?) {
-        val bottomSheet = StreamBottomSheet(metaId, metaType, episode)
+    private fun showStreams(episode: Video?, meta: com.ultrastream.data.models.MetaItem) {
+        val bottomSheet = StreamBottomSheet(meta.id, meta.type, episode)
         bottomSheet.show(supportFragmentManager, "stream_sheet")
-    }
-
-    private fun updateWatchlistIcon() {
-        lifecycleScope.launch {
-            val watchlist = (application as UltraStreamApplication).repository.getWatchlist()
-            val inWatchlist = watchlist.any { it.id == metaId }
-            binding.btnWatchlist.setImageResource(
-                if (inWatchlist) R.drawable.ic_watchlist_filled else R.drawable.ic_watchlist
-            )
-            binding.btnWatchlist.setOnClickListener { toggleWatchlist() }
-        }
-    }
-
-    private fun toggleWatchlist() {
-        lifecycleScope.launch {
-            val watchlist = (application as UltraStreamApplication).repository.getWatchlist().toMutableList()
-            val idx = watchlist.indexOfFirst { it.id == metaId }
-            if (idx != -1) {
-                watchlist.removeAt(idx)
-                Toast.makeText(this@DetailsActivity, "Removed from watchlist", Toast.LENGTH_SHORT).show()
-            } else {
-                watchlist.add(meta)
-                Toast.makeText(this@DetailsActivity, "Added to watchlist", Toast.LENGTH_SHORT).show()
-            }
-            (application as UltraStreamApplication).repository.setWatchlist(watchlist)
-            updateWatchlistIcon()
-        }
-    }
-
-    private fun updateLibraryIcon() {
-        lifecycleScope.launch {
-            val library = (application as UltraStreamApplication).repository.getLibrary()
-            val inLibrary = library.any { it.id == metaId }
-            binding.btnLibrary.setImageResource(
-                if (inLibrary) R.drawable.ic_bookmark_filled else R.drawable.ic_bookmark
-            )
-            binding.btnLibrary.setOnClickListener { toggleLibrary() }
-        }
-    }
-
-    private fun toggleLibrary() {
-        lifecycleScope.launch {
-            val library = (application as UltraStreamApplication).repository.getLibrary().toMutableList()
-            val idx = library.indexOfFirst { it.id == metaId }
-            if (idx != -1) {
-                library.removeAt(idx)
-                Toast.makeText(this@DetailsActivity, "Removed from library", Toast.LENGTH_SHORT).show()
-            } else {
-                library.add(meta)
-                Toast.makeText(this@DetailsActivity, "Added to library", Toast.LENGTH_SHORT).show()
-            }
-            (application as UltraStreamApplication).repository.setLibrary(library)
-            updateLibraryIcon()
-        }
     }
 
     private fun showLoading(show: Boolean) {
