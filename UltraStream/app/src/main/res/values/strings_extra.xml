@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Player -->
+    <string name="player_title">Now Playing</string>
+    <string name="buffering">Buffering…</string>
+    <string name="playback_error">Playback Error</string>
+
+    <!-- Sheets -->
+    <string name="available_streams">Available Streams</string>
+    <string name="no_streams_found">No streams found</string>
+    <string name="select_season">Select Season</string>
+    <string name="profiles">Profiles</string>
+    <string name="watch_analytics">📊 Watch Analytics</string>
+
+    <!-- Playlist -->
+    <string name="smart_playlist">Smart Playlist</string>
+    <string name="playlist_export">Export M3U</string>
+    <string name="playlist_play">Play in Player</string>
+
+    <!-- Addons -->
+    <string name="installed_plugins">Installed Plugins</string>
+    <string name="recommended_addons">🔥 Recommended Addons</string>
+    <string name="addon_data_management">📦 Addon Data Management</string>
+    <string name="export_addons">Export Addons</string>
+    <string name="import_addons">Import Addons</string>
+
+    <!-- Settings -->
+    <string name="preferences">Preferences</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="theme_desc">Switch between Light &amp; Dark Mode</string>
+    <string name="hindi_priority">Hindi Priority</string>
+    <string name="hindi_desc">Push Hindi/Dual Audio streams to top</string>
+    <string name="autoplay_next">Auto-play Next</string>
+    <string name="autoplay_desc">Automatically suggest next episode</string>
+    <string name="parental_control">Parental Control</string>
+    <string name="parental_desc">Filter content by maturity rating</string>
+    <string name="data_backup">Data &amp; Backup</string>
+    <string name="backup_data">Backup Data</string>
+    <string name="restore_data">Restore</string>
+    <string name="factory_reset">🧹 Factory Reset / Clear Data</string>
+
+    <!-- Toast Messages -->
+    <string name="copied">Copied!</string>
+    <string name="saved">Saved!</string>
+    <string name="deleted">Deleted!</string>
+    <string name="added_to_watchlist">Added to watchlist</string>
+    <string name="removed_from_watchlist">Removed from watchlist</string>
+    <string name="added_to_library">Added to library</string>
+    <string name="removed_from_library">Removed from library</string>
+</resources>

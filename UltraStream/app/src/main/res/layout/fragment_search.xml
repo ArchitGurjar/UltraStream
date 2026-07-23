@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dark_bg_main">
+
+    <include layout="@layout/top_bar_plain" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="14dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search movies, series, TV, anime…"
+                android:inputType="text"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingTop="12dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/filter_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_all"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="All"
+                    android:checked="true" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_movie"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Movies" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_series"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Series" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_anime"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Anime" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_tv"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="TV" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingTop="6dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/sort_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sort_rating"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="⭐ Rating"
+                    android:checked="true" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sort_year"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="📅 Year" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/sort_popular"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="🔥 Popular" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_search_results"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="20dp"
+        app:spanCount="2"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
+
+</LinearLayout>
