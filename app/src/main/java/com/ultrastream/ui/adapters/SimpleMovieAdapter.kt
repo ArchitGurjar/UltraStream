@@ -13,12 +13,12 @@ import com.ultrastream.ui.home.MetaItem
 class SimpleMovieAdapter(private val movies: List<MetaItem>) : RecyclerView.Adapter<SimpleMovieAdapter.MovieViewHolder>() {
 
     class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.findViewById(R.id.poster_title)
-        val img: ImageView = view.findViewById(R.id.poster_img)
+        val title: TextView = view.findViewById(R.id.home_poster_title)
+        val img: ImageView = view.findViewById(R.id.home_poster_img)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.id.item_poster, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.id.item_home_movie, parent, false)
         return MovieViewHolder(view)
     }
 
