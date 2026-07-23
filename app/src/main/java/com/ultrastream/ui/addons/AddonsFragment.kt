@@ -1,5 +1,6 @@
 package com.ultrastream.ui.addons
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,9 +21,8 @@ class AddonsFragment : Fragment() {
     private val binding get() = _binding!!
     private val gson = Gson()
 
-    // File Picker Launcher for JSON Import
     private val importLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { parseAndLoadAddons(it) }
+        uri?.let { parseAndSaveAddons(it) }
     }
 
     override fun onCreateView(
@@ -35,40 +35,40 @@ class AddonsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // स्क्रीन खुलते ही सेव किए हुए ऐडऑन्स को लोड करें
+        loadInstalledAddons()
+
         binding.importAddonsBtn.setOnClickListener {
-            importLauncher.launch("*/*") // JSON फाइल सेलेक्ट करने के लिए
+            importLauncher.launch("*/*")
         }
 
         binding.installAddonBtn.setOnClickListener {
             val url = binding.addonUrlInput.text.toString()
             if (url.isNotEmpty()) {
                 Toast.makeText(requireContext(), "Installing Addon...", Toast.LENGTH_SHORT).show()
-                addAddonToView("Custom Addon", url)
                 binding.addonUrlInput.text?.clear()
             }
         }
 
         binding.factoryResetBtn.setOnClickListener {
+            val prefs = requireContext().getSharedPreferences("addons_prefs", Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
             binding.installedAddonsContainer.removeAllViews()
-            Toast.makeText(requireContext(), "All addons cleared!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "All addons cleared permanently!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun parseAndLoadAddons(uri: Uri) {
+    private fun parseAndSaveAddons(uri: Uri) {
         try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
             val jsonString = inputStream?.bufferedReader().use { it?.readText() }
-            
-            // Gson से JSON को List<Addon> में बदलें
-            val type = object : TypeToken<List<Addon>>() {}.type
-            val addonsList: List<Addon> = gson.fromJson(jsonString, type)
 
-            binding.installedAddonsContainer.removeAllViews()
-            addonsList.forEach { addon ->
-                addAddonToView(addon.name, addon.url)
-            }
-            
-            Toast.makeText(requireContext(), "Successfully imported ${addonsList.size} Addons!", Toast.LENGTH_LONG).show()
+            // डेटा को फोन में हमेशा के लिए सेव करें
+            val prefs = requireContext().getSharedPreferences("addons_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putString("addons_json", jsonString).apply()
+
+            loadInstalledAddons()
+            Toast.makeText(requireContext(), "Successfully imported & saved Addons!", Toast.LENGTH_LONG).show()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -76,14 +76,29 @@ class AddonsFragment : Fragment() {
         }
     }
 
-    private fun addAddonToView(name: String, url: String) {
-        val tv = TextView(requireContext()).apply {
-            text = "✅ $name\n$url"
-            textSize = 14f
-            setPadding(0, 16, 0, 24)
-            setTextColor(requireContext().getColor(android.R.color.white))
+    private fun loadInstalledAddons() {
+        try {
+            val prefs = requireContext().getSharedPreferences("addons_prefs", Context.MODE_PRIVATE)
+            val jsonString = prefs.getString("addons_json", null)
+
+            if (jsonString != null) {
+                val type = object : TypeToken<List<Addon>>() {}.type
+                val addonsList: List<Addon> = gson.fromJson(jsonString, type)
+
+                binding.installedAddonsContainer.removeAllViews()
+                addonsList.forEach { addon ->
+                    val tv = TextView(requireContext()).apply {
+                        text = "✅ ${addon.name}\n${addon.url}"
+                        textSize = 14f
+                        setPadding(0, 16, 0, 24)
+                        setTextColor(requireContext().getColor(android.R.color.white))
+                    }
+                    binding.installedAddonsContainer.addView(tv)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        binding.installedAddonsContainer.addView(tv)
     }
 
     override fun onDestroyView() {
