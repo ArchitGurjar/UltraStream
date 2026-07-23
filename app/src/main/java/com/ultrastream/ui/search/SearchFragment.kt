@@ -1,4 +1,3 @@
-// app/src/main/java/com/ultrastream/ui/search/SearchFragment.kt
 package com.ultrastream.ui.search
 
 import android.os.Bundle
@@ -69,7 +68,6 @@ class SearchFragment : Fragment() {
     }
 
     private fun setupChips() {
-        // Filter chips
         val chips = binding.filterChipGroup
         chips.setOnCheckedChangeListener { _, _ ->
             val query = binding.searchInput.text.toString().trim()
@@ -80,7 +78,6 @@ class SearchFragment : Fragment() {
                 }
             }
         }
-        // Sort chips
         val sortChips = binding.sortChipGroup
         sortChips.setOnCheckedChangeListener { _, _ ->
             val query = binding.searchInput.text.toString().trim()
@@ -124,12 +121,11 @@ class SearchFragment : Fragment() {
                     if (filter != "all" && catalog.type != filter) continue
                     val baseUrl = addon.url.replace("/manifest.json", "")
                     val searchUrl = "$baseUrl/catalog/${catalog.type}/${catalog.id}/search=${query}.json"
-                    val deferred = async {
+                    val deferred = async<Unit> {
                         try {
                             val items = NetworkUtils.fetchCatalog(addon.url, catalog.type, catalog.id + "/search=" + query)
                             allResults.addAll(items)
                         } catch (_: Exception) {
-                            // ignore
                         }
                     }
                     deferredSearches.add(deferred)
@@ -138,9 +134,7 @@ class SearchFragment : Fragment() {
             deferredSearches.awaitAll()
         }
 
-        // Remove duplicates
         val unique = allResults.distinctBy { it.id }
-        // Sort if needed
         val sorted = when (sort) {
             "rating" -> unique.sortedByDescending { it.imdbRating ?: 0f }
             "year" -> unique.sortedByDescending { it.year ?: 0 }
