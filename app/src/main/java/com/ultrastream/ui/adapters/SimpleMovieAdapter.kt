@@ -18,7 +18,8 @@ class SimpleMovieAdapter(private val movies: List<MetaItem>) : RecyclerView.Adap
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.id.item_home_movie, parent, false)
+        // असली फिक्स: यहाँ R.id की जगह R.layout कर दिया गया है
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_home_movie, parent, false)
         return MovieViewHolder(view)
     }
 
