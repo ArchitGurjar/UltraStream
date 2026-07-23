@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark Theme -->
     <color name="dark_bg_main">#060606</color>
     <color name="dark_bg_surface">#121212</color>
     <color name="dark_bg_card">#1a1a1a</color>
-    <color name="dark_text_main">#ffffff</color>
-    <color name="dark_text_muted">#a3a3a3</color>
-
-    <!-- Light Theme -->
-    <color name="light_bg_main">#f3f4f6</color>
-    <color name="light_bg_surface">#ffffff</color>
-    <color name="light_bg_card">#ffffff</color>
-    <color name="light_text_main">#111827</color>
-    <color name="light_text_muted">#6b7280</color>
-
-    <!-- Accents -->
+    <color name="text_main">#ffffff</color>
+    <color name="text_muted">#a3a3a3</color>
+    
+    <!-- Accent Colors -->
     <color name="accent_blue">#38bdf8</color>
     <color name="accent_gold">#fbbf24</color>
     <color name="accent_red">#ef4444</color>
     <color name="accent_green">#4caf50</color>
     <color name="accent_purple">#a78bfa</color>
-    <color name="accent_pink">#f472b6</color>
     <color name="accent_orange">#fb923c</color>
-
-    <!-- Bottom Nav Selector -->
-    <color name="bottom_nav_selector">#888888</color>
-    <color name="bottom_nav_selector_active">#38bdf8</color>
+    
+    <!-- Custom Button Backgrounds (From Stream Options Screenshot) -->
+    <color name="btn_bg_cyan">#38bdf8</color>
+    <color name="btn_bg_purple">#2d1b4e</color>
+    <color name="btn_bg_dark">#1f1f1f</color>
+    <color name="btn_bg_brown">#33230a</color>
+    <color name="btn_bg_darkpurple">#231633</color>
+    <color name="btn_bg_darkgreen">#1a3a2a</color>
+    
+    <color name="transparent">#00000000</color>
 </resources>

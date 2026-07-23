@@ -3,63 +3,103 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/dark_bg_main">
+    android:padding="20dp"
+    android:background="@drawable/bg_bottom_sheet">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Stream Options"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:paddingBottom="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp">
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Stream Options"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
 
-    <Button
+        <ImageView
+            android:id="@+id/btn_close"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_close"
+            android:background="@drawable/round_button_bg"
+            android:padding="6dp" />
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_play_external"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="▶️ Play in Default Player"
-        style="@style/Widget.MaterialComponents.Button" />
+        android:layout_height="56dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_btn_cyan"
+        android:text="▶  Play in Default Player"
+        android:textAllCaps="false"
+        android:textColor="@color/dark_bg_main"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btn_download"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="📥 Download / Open in Browser"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
-    <Button
-        android:id="@+id/btn_copy_magnet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="🧲 Copy Magnet Link"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
-    <Button
-        android:id="@+id/btn_copy_url"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="🔗 Copy Direct Video URL"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_subtitles"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="💬 Search Subtitles"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        android:layout_height="56dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_btn_purple"
+        android:text="cc  Search Subtitles"
+        android:textAllCaps="false"
+        android:textColor="@color/accent_purple"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_download"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_btn_dark"
+        android:text="📥  Download / Open in Browser"
+        android:textAllCaps="false"
+        android:textColor="@color/text_main"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_copy_magnet"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_btn_brown"
+        android:text="🧲  Copy Magnet Link"
+        android:textAllCaps="false"
+        android:textColor="@color/accent_gold"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_copy_url"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_btn_darkpurple"
+        android:text="🔗  Copy Direct Video URL"
+        android:textAllCaps="false"
+        android:textColor="@color/accent_purple"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_export_m3u"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="📂 Export / Play .m3u"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        android:layout_height="56dp"
+        android:background="@drawable/bg_btn_darkgreen"
+        android:text="Export / Play .m3u"
+        android:textAllCaps="false"
+        android:textColor="@color/accent_green"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 </LinearLayout>
